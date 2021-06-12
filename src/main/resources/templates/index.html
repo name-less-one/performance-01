@@ -1,0 +1,10 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div>
+        <form role="form" action="execute" th:action="@{/execute}" th:object="${performanceForm}" method="post">
+            <button type="submit" class="btn btn-default">execute</button>
+        </form>
+    </div>
+</body>
+</html>

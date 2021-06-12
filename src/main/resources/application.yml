@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:./h2db/sampledb;MODE=MySQL
+    username: username
+    password: password
+
+doma:
+  dialect: mysql
+  naming: SNAKE_LOWER_CASE
+
+server:
+  port: 8080
