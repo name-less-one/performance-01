@@ -1,5 +1,5 @@
 create table if not exists user_info (
-     id int PRIMARY KEY AUTO_INCREMENT
+     id serial
     ,last_name varchar(256) not null
     ,first_name varchar(256) not null
     ,prefectures varchar(8) not null

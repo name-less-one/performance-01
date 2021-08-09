@@ -6,20 +6,19 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.performance.domain.dao.UserInfoDao;
 import com.performance.domain.entity.UserInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class PerformanceService {
 
-    final static Logger log = LogManager.getLogger(PerformanceService.class);
-
     private UserInfoDao userInfoDao;
-    
+
     public PerformanceService(UserInfoDao userInfoDao) {
         this.userInfoDao = userInfoDao;
     }
@@ -32,6 +31,8 @@ public class PerformanceService {
         
         // DBから検索する
         List<UserInfo> userInfoList = userInfoDao.search(userInfo, Arrays.asList(userInfo.getHobby1(), userInfo.getHobby2(), userInfo.getHobby3(), userInfo.getHobby4(), userInfo.getHobby5()));
+        int count = userInfoDao.searchCount();
+        
         
         return userInfoList;
     }
@@ -75,19 +76,29 @@ public class PerformanceService {
 
           //1行ずつ読み込みを行う
           while ((line = br.readLine()) != null) {
-
+              i++;
               //データ内容をコンソールに表示する
-              System.out.println("-------------------------------");
+              log.info("-------------------------------");
 
               //データ件数を表示
-              System.out.println("データ" + i + "件目");
+              log.info("データ" + i + "件目");
 
               //カンマで分割した内容を配列に格納する
               String[] data = line.split(",", -1);
 
               //配列の中身を順位表示する。列数(=列名を格納した配列の要素数)分繰り返す
+              log.debug("ユーザー名:" + data[0]);
+              log.debug("ユーザー性:" + data[1]);
+              log.debug("出身都道府県:" + data[2]);
+              log.debug("出身市区町村:" + data[3]);
+              log.debug("血液型:" + data[4]);
+              log.debug("趣味1:" + data[5]);
+              log.debug("趣味2:" + data[6]);
+              log.debug("趣味3:" + data[7]);
+              log.debug("趣味4:" + data[8]);
+              log.debug("趣味5:" + data[9]);
               UserInfo userInfo = createUserInfo(data);
-              userInfoDao.Insert(userInfo);
+              userInfoDao.insert(userInfo);
           }
           //行数のインクリメント
           i++;

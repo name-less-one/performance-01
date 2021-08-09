@@ -1,7 +1,5 @@
-package com.performance.domain.web;
+package com.performance.apps.web;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,8 +12,6 @@ import com.performance.domain.service.PerformanceService;
 
 @Controller
 public class PerformanceController {
-
-    final static Logger log = LogManager.getLogger(PerformanceController.class);
     
     PerformanceService service;
     
