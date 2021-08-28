@@ -54,5 +54,10 @@ public class UserInfoDao {
         
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
+
+    public void truncate() {
+        String sql = "TRUNCATE TABLE user_info";
+        jdbcTemplate.execute(sql);
+    }
     
 }
