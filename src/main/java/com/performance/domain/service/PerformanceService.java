@@ -1,7 +1,6 @@
 package com.performance.domain.service;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStreamReader;
@@ -31,13 +30,18 @@ public class PerformanceService {
         // CSVを取得・CSVファイルをDBに登録する
         uploadCsv();
         
-        UserInfo userInfo = template();
+        UserInfo userInfo = getTarget();
         
         // DBから検索する
         List<UserInfo> userInfoList = userInfoDao.search(userInfo, Arrays.asList(userInfo.getHobby1(), userInfo.getHobby2(), userInfo.getHobby3(), userInfo.getHobby4(), userInfo.getHobby5()));
         int count = userInfoDao.searchCount();
         
         return userInfoList;
+    }
+    
+    private UserInfo getTarget() {
+        
+        return userInfoDao.getTarget();
     }
     
     private UserInfo template() {
@@ -96,7 +100,6 @@ public class PerformanceService {
     private List<String> readCsv() {
         //ファイル読み込みで使用する3つのクラス
         FileInputStream fi = null;
-        FileReader fr = null;
         InputStreamReader is = null;
         BufferedReader br = null;
         List<String> csvFile = new ArrayList<String>();

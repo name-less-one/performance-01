@@ -49,6 +49,15 @@ public class UserInfoDao {
         return jdbcTemplate.queryForList(sql, UserInfo.class);
     }
     
+    public UserInfo getTarget() {
+        String sql = "SELECT id, last_name, first_name, prefectures, city, blood_type, hobby1, hobby2, hobby3, hobby4, hobby5 ";
+        sql = sql + "FROM user_info ";
+        sql = sql + "WHERE last_name = " + "'試験'";
+        sql = sql + "AND first_name = " + "'太郎'";
+
+        return jdbcTemplate.queryForObject(sql, UserInfo.class);
+    }
+    
     public int searchCount() {
         String sql = "SELECT COUNT(*) FROM user_info";
         
