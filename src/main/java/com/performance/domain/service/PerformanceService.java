@@ -2,11 +2,10 @@ package com.performance.domain.service;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,35 +29,33 @@ public class PerformanceService {
         // CSVを取得・CSVファイルをDBに登録する
         uploadCsv();
         
-        UserInfo userInfo = getTarget();
+        UserInfo targetUser = getTarget();
         
         // DBから検索する
-        List<UserInfo> userInfoList = userInfoDao.search(userInfo, Arrays.asList(userInfo.getHobby1(), userInfo.getHobby2(), userInfo.getHobby3(), userInfo.getHobby4(), userInfo.getHobby5()));
-        int count = userInfoDao.searchCount();
+        List<UserInfo> userInfoList = userInfoDao.search();
         
-        return userInfoList;
+        List<UserInfo> matchUserInfoList = matchingUser(targetUser, userInfoList);
+        
+        return matchUserInfoList;
     }
     
+    private List<UserInfo> matchingUser(UserInfo targetUser, List<UserInfo> userInfoList) {
+        
+        List<UserInfo> matchingUserList = userInfoList.stream()
+            .filter(user -> user.getBloodType().equals(targetUser.getBloodType()))
+            .filter(user -> user.getCity().equals(targetUser.getCity()))
+            .filter(user -> user.getHobby1().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
+            .filter(user -> user.getHobby2().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
+            .filter(user -> user.getHobby3().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
+            .filter(user -> user.getHobby4().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
+            .filter(user -> user.getHobby5().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
+            .collect(Collectors.toList());
+        return matchingUserList;
+    }
+
     private UserInfo getTarget() {
         
         return userInfoDao.getTarget();
-    }
-    
-    private UserInfo template() {
-        UserInfo userInfo = new UserInfo();
-
-        userInfo.setLastName("試験");
-        userInfo.setFirstName("太郎");
-        userInfo.setPrefectures("東京都");
-        userInfo.setCity("千代田区");
-        userInfo.setBloodType("AB");
-        userInfo.setHobby1("");
-        userInfo.setHobby2("");
-        userInfo.setHobby3("");
-        userInfo.setHobby4("");
-        userInfo.setHobby5("");
-
-        return userInfo;
     }
 
     void uploadCsv() {
