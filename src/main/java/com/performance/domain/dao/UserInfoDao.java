@@ -34,17 +34,9 @@ public class UserInfoDao {
         jdbcTemplate.execute(sql);
     }
 
-    public List<UserInfo> search(UserInfo entity, List<String> hobbies) {
+    public List<UserInfo> search() {
         String sql = "SELECT id, last_name, first_name, prefectures, city, blood_type, hobby1, hobby2, hobby3, hobby4, hobby5 ";
         sql = sql + "FROM user_info ";
-        sql = sql + "WHERE prefectures = " + "'" + entity.getPrefectures() + "'";
-        sql = sql + "AND city = " + "'" + entity.getCity() + "'";
-        sql = sql + "AND blood_type = " + "'" + entity.getBloodType() + "'";
-        sql = sql + "AND hobby1 IN (" + "'" + entity.getHobby1() + "',"+ "'" + entity.getHobby2() + "',"+ "'" + entity.getHobby3() + "',"+ "'" + entity.getHobby4() + "',"+ "'" + entity.getHobby5() + "')";
-        sql = sql + "AND hobby2 IN (" + "'" + entity.getHobby1() + "',"+ "'" + entity.getHobby2() + "',"+ "'" + entity.getHobby3() + "',"+ "'" + entity.getHobby4() + "',"+ "'" + entity.getHobby5() + "')";
-        sql = sql + "AND hobby3 IN (" + "'" + entity.getHobby1() + "',"+ "'" + entity.getHobby2() + "',"+ "'" + entity.getHobby3() + "',"+ "'" + entity.getHobby4() + "',"+ "'" + entity.getHobby5() + "')";
-        sql = sql + "AND hobby4 IN (" + "'" + entity.getHobby1() + "',"+ "'" + entity.getHobby2() + "',"+ "'" + entity.getHobby3() + "',"+ "'" + entity.getHobby4() + "',"+ "'" + entity.getHobby5() + "')";
-        sql = sql + "AND hobby5 IN (" + "'" + entity.getHobby1() + "',"+ "'" + entity.getHobby2() + "',"+ "'" + entity.getHobby3() + "',"+ "'" + entity.getHobby4() + "',"+ "'" + entity.getHobby5() + "')";
 
         return jdbcTemplate.queryForList(sql, UserInfo.class);
     }
