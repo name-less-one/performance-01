@@ -2,10 +2,7 @@ package com.performance.apps.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.performance.domain.service.GoogleApiService;
@@ -23,12 +20,12 @@ public class PerformanceController {
     }
 
     @GetMapping(value = "/index")
-    public String index(PerformanceForm form, Model model) {
+    public String index() {
         return "index";
     }
 
     @PostMapping(value = "/execute")
-    public String confirm(@Validated @ModelAttribute PerformanceForm form, BindingResult result, Model model) {
+    public String confirm(Model model) {
 
         service.truncateTable();
         
