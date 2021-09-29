@@ -5,9 +5,16 @@ spring:
     username: username
     password: password
 
-doma:
-  dialect: mysql
-  naming: SNAKE_LOWER_CASE
-
 server:
   port: 8080
+
+app:
+  execute:
+    user: 
+  google:
+    oauth2-url: 
+    api-url: 
+    sheet-id: 
+    client-id: 
+    client-secret: 
+    refresh-token: 

@@ -29,6 +29,8 @@ public class PerformanceService {
         // CSVを取得・CSVファイルをDBに登録する
         uploadCsv();
         
+        int count = userInfoDao.searchCount();
+        
         UserInfo targetUser = getTarget();
         
         // DBから検索する
@@ -63,11 +65,12 @@ public class PerformanceService {
         List<String> csvFile = readCsv();
 
         try {
+            int i = 0;
             for(String line : csvFile) {
-                int i = 0;
+                i++;
                 //カンマで分割した内容を配列に格納する
                 String[] data = line.split(",", -1);
-
+                
                 //データ内容をコンソールに表示する
                 log.info("-------------------------------");
                 //データ件数を表示
@@ -86,7 +89,6 @@ public class PerformanceService {
                 UserInfo userInfo = createUserInfo(data);
                 userInfoDao.insert(userInfo);
                 // 行数のインクリメント
-                i++;
             }
 
         } catch (Exception e) {
@@ -126,8 +128,6 @@ public class PerformanceService {
                 log.info("データ読み込み" + i + "件目");
                 
                 csvFile.add(readLine);
-                //行数のインクリメント
-                i++;
             }
         } catch (Exception e) {
             log.info("csv read error", e);

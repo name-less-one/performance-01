@@ -1,10 +1,92 @@
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    <!--
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        // Ajax通信 試験実行ボタンクリック
+        $('#btnTestExecute').on('click', function(event){
+            event.preventDefault();
+            // outputDataを空に初期化
+            $("#result").html("");
+            $('#measureFlag').val('0');
+            $form = $(this).parents('form:first');
+            $.ajax({
+                type: $form.attr('method'),
+                url : $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend : function(xhr, settings){
+                    //Buttonを無効にする
+                    $('#btnRefApiExecute').attr('disabled' , true);
+                    //処理中のを通知するアイコンを表示する
+                    $('#divApiExecute').append('<div class="overlay" id ="spin" name = "spin"><i class="fa fa-refresh fa-spin"></i></div>');
+                },
+                complete: function(xhr, textStatus){
+                    //処理中アイコン削除
+                    $('#spin').remove();
+                    $('#btnRefApiExecute').attr('disabled' , false);  
+                },
+                success : function(data,status,xhr) {
+                    $("#refResult").html(data);
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    $('#btnRefApiExecute').attr('disabled' , false);  
+                    alert("error:" + XMLHttpRequest + "/" + textStatus + "/" + errorThrown);
+                }
+            });
+        });
+        // Ajax通信 計測実行ボタンクリック
+        $('#btnExecute').on('click', function(event){
+            event.preventDefault();
+            // outputDataを空に初期化
+            $("#result").html("");
+            $('#measureFlag').val('1');
+            $form = $(this).parents('form:first');
+            $.ajax({
+                type: $form.attr('method'),
+                url : $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend : function(xhr, settings){
+                    //Buttonを無効にする
+                    $('#btnRefApiExecute').attr('disabled' , true);
+                    //処理中のを通知するアイコンを表示する
+                    $('#divApiExecute').append('<div class="overlay" id ="spin" name = "spin"><i class="fa fa-refresh fa-spin"></i></div>');
+                },
+                complete: function(xhr, textStatus){
+                    //処理中アイコン削除
+                    $('#spin').remove();
+                    $('#btnRefApiExecute').attr('disabled' , false);  
+                },
+                success : function(data,status,xhr) {
+                    $("#refResult").html(data);
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    $('#btnRefApiExecute').attr('disabled' , false);  
+                    alert("error:" + XMLHttpRequest + "/" + textStatus + "/" + errorThrown);
+                }
+            });
+        });
+    });
+    //-->
+  </script>
+</head>
 <body>
     <div>
         <form role="form" action="execute" th:action="@{/execute}" th:object="${performanceForm}" method="post">
-            <button type="submit" class="btn btn-default">execute</button>
+            <button type="button" class="btn btn-default" id="btnTestExecute">試験実行</button>
+            <button type="button" class="btn btn-default" id="btnExecute">計測実行</button>
+            <input type="hidden" class="form-control" name="measureFlag" id="measureFlag" value="">
         </form>
+    </div>
+    <div class="container">
+      <div class="form-group" id="refResult"></div>
     </div>
 </body>
 </html>
