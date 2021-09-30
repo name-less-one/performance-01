@@ -58,7 +58,8 @@ public class GoogleApiService {
         E("E", 4),
         F("F", 5),
         G("G", 6),
-        H("H", 7);
+        H("H", 7),
+        I("I", 8);
         
         private String columnId;
         private int columnNumber;

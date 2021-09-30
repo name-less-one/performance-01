@@ -24,22 +24,17 @@
                 data: $form.serialize(),
                 beforeSend : function(xhr, settings){
                     //Buttonを無効にする
-                    $('#btnRefApiExecute').attr('disabled' , true);
-                    //処理中のを通知するアイコンを表示する
-                    $('#divApiExecute').append('<div class="overlay" id ="spin" name = "spin"><i class="fa fa-refresh fa-spin"></i></div>');
+                    $('#btnTestExecute').attr('disabled' , true);
+                    $('#btnExecute').attr('disabled' , true);
                 },
-                complete: function(xhr, textStatus){
-                    //処理中アイコン削除
-                    $('#spin').remove();
-                    $('#btnRefApiExecute').attr('disabled' , false);  
-                },
-                success : function(data,status,xhr) {
+            }).always(function(xhr, textStatus){
+                    //Buttonを有効にする
+                    $('#btnTestExecute').attr('disabled' , false);
+                    $('#btnExecute').attr('disabled' , false);
+            }).done(function(data,status,xhr) {
                     $("#refResult").html(data);
-                },
-                error : function(XMLHttpRequest, textStatus, errorThrown) {
-                    $('#btnRefApiExecute').attr('disabled' , false);  
-                    alert("error:" + XMLHttpRequest + "/" + textStatus + "/" + errorThrown);
-                }
+            }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert("status:" + XMLHttpRequest.status + ",textStatus:" + textStatus + ",errorThrown:" + errorThrown);
             });
         });
         // Ajax通信 計測実行ボタンクリック
@@ -55,22 +50,17 @@
                 data: $form.serialize(),
                 beforeSend : function(xhr, settings){
                     //Buttonを無効にする
-                    $('#btnRefApiExecute').attr('disabled' , true);
-                    //処理中のを通知するアイコンを表示する
-                    $('#divApiExecute').append('<div class="overlay" id ="spin" name = "spin"><i class="fa fa-refresh fa-spin"></i></div>');
-                },
-                complete: function(xhr, textStatus){
-                    //処理中アイコン削除
-                    $('#spin').remove();
-                    $('#btnRefApiExecute').attr('disabled' , false);  
-                },
-                success : function(data,status,xhr) {
-                    $("#refResult").html(data);
-                },
-                error : function(XMLHttpRequest, textStatus, errorThrown) {
-                    $('#btnRefApiExecute').attr('disabled' , false);  
-                    alert("error:" + XMLHttpRequest + "/" + textStatus + "/" + errorThrown);
+                    $('#btnTestExecute').attr('disabled' , true);
+                    $('#btnExecute').attr('disabled' , true);
                 }
+            }).always(function(xhr, textStatus){
+                    //Buttonを有効にする
+                    $('#btnTestExecute').attr('disabled' , false);
+                    $('#btnExecute').attr('disabled' , false);
+            }).done(function(data,status,xhr) {
+                    $("#refResult").html(data);
+            }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert("status:" + XMLHttpRequest.status + ",textStatus:" + textStatus + ",errorThrown:" + errorThrown);
             });
         });
     });
