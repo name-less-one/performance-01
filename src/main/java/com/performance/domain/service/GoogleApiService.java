@@ -137,7 +137,7 @@ public class GoogleApiService {
 
     private Column getTargetColumun(GoogleOauthResponse googleOauth) throws URISyntaxException, JsonMappingException, JsonProcessingException {
 
-        String getUrl = API_URL + SHEET_ID + "/values/シート1!B1:H1";
+        String getUrl = API_URL + SHEET_ID + "/values/シート1!B1:I1";
         GoogleSpreadSheetRowResponse response = null;
         RequestEntity<Void> request = RequestEntity.get(new URI(getUrl)).header("Authorization", googleOauth.getTokenType() + " " + googleOauth.getAccessToken()).build();
         ResponseEntity<GoogleSpreadSheetRowResponse> responseEntity = restTemplate.exchange(request, GoogleSpreadSheetRowResponse.class);
