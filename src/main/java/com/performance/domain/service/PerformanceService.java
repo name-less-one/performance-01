@@ -40,7 +40,7 @@ public class PerformanceService {
 
         Long start = System.currentTimeMillis();
 
-        //uploadExecute();
+        uploadExecute();
 
         Long end = System.currentTimeMillis();
         Long executeTime = end - start;
