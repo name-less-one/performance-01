@@ -1,7 +1,9 @@
 package com.performance.domain.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.performance.domain.dao.UserInfoDao;
@@ -19,19 +22,46 @@ public class PerformanceService {
 
     final static Logger log = LogManager.getLogger(PerformanceService.class);
 
+    private final String MEASURE_FLAG_ON  = "1";
+
+    private GoogleApiService googleService;
+
     private UserInfoDao userInfoDao;
 
-    public PerformanceService(UserInfoDao userInfoDao) {
+    public PerformanceService(GoogleApiService googleService, UserInfoDao userInfoDao) {
+        this.googleService = googleService;
         this.userInfoDao = userInfoDao;
     }
-    
-    public List<UserInfo> execute() {
+
+    @Async("perfomanceExecutor")
+    public void execute(String measureFlag) {
+
+        truncateTable();
+
+        Long start = System.currentTimeMillis();
+
+        //uploadExecute();
+
+        Long end = System.currentTimeMillis();
+        Long executeTime = end - start;
+
+        if(MEASURE_FLAG_ON.equals(measureFlag)) {
+            try {
+                googleService.execute(executeTime);
+            } catch (Exception e) {
+                log.error("スプレッドシートの更新でエラーが発生しました。", e);
+            }
+        }
+        return;
+    }
+
+    public List<UserInfo> uploadExecute() {
         // CSVを取得・CSVファイルをDBに登録する
         uploadCsv();
         
         int count = userInfoDao.searchCount();
         
-        UserInfo targetUser = getTarget();
+        UserInfo targetUser = getTargetUser();
         
         // DBから検索する
         List<UserInfo> userInfoList = userInfoDao.search();
@@ -40,7 +70,7 @@ public class PerformanceService {
         
         return matchUserInfoList;
     }
-    
+
     private List<UserInfo> matchingUser(UserInfo targetUser, List<UserInfo> userInfoList) {
         
         List<UserInfo> matchingUserList = userInfoList.stream()
@@ -55,9 +85,8 @@ public class PerformanceService {
         return matchingUserList;
     }
 
-    private UserInfo getTarget() {
-        
-        return userInfoDao.getTarget();
+    private UserInfo getTargetUser() {
+        return userInfoDao.getTargetUser();
     }
 
     void uploadCsv() {
@@ -76,7 +105,7 @@ public class PerformanceService {
                 //データ件数を表示
                 log.info("データ書き込み" + i + "件目");
                 //配列の中身を順位表示する。列数(=列名を格納した配列の要素数)分繰り返す
-                log.debug("ユーザー性:" + data[1]);
+                log.debug("ユーザー姓:" + data[1]);
                 log.debug("出身都道府県:" + data[2]);
                 log.debug("ユーザー名:" + data[0]);
                 log.debug("出身市区町村:" + data[3]);
@@ -98,6 +127,7 @@ public class PerformanceService {
 
     private List<String> readCsv() {
         //ファイル読み込みで使用する3つのクラス
+        FileReader fr = null;
         FileInputStream fi = null;
         InputStreamReader is = null;
         BufferedReader br = null;
@@ -106,11 +136,11 @@ public class PerformanceService {
 
             //読み込みファイルのインスタンス生成
             //ファイル名を指定する
-            //fr = new FileReader(new File("data/userInfo.csv"));
-            //br = new BufferedReader(fr);
-            fi = new FileInputStream("data/userInfo.csv");
-            is = new InputStreamReader(fi);
-            br = new BufferedReader(is);
+            fr = new FileReader(new File("data/userInfo.csv"));
+            br = new BufferedReader(fr);
+//            fi = new FileInputStream("data/userInfo.csv");
+//            is = new InputStreamReader(fi);
+//            br = new BufferedReader(is);
 
             //読み込み行
             String readLine;

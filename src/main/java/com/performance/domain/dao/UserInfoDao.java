@@ -43,7 +43,7 @@ public class UserInfoDao {
         return jdbcTemplate.query(sql, mapper);
     }
     
-    public UserInfo getTarget() {
+    public UserInfo getTargetUser() {
         String sql = "SELECT id, last_name, first_name, prefectures, city, blood_type, hobby1, hobby2, hobby3, hobby4, hobby5 ";
         sql = sql + "FROM user_info ";
         sql = sql + "WHERE last_name = " + "'試験'";
