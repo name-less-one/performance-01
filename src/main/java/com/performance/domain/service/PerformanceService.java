@@ -2,13 +2,9 @@ package com.performance.domain.service;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
@@ -40,11 +36,13 @@ public class PerformanceService {
 
         Long start = System.currentTimeMillis();
 
-        uploadExecute();
+        List<UserInfo> matchingUserList = uploadExecute();
 
         Long end = System.currentTimeMillis();
         Long executeTime = end - start;
 
+        // アサーション入れる
+        
         if(MEASURE_FLAG_ON.equals(measureFlag)) {
             try {
                 googleService.execute(executeTime);
@@ -57,79 +55,8 @@ public class PerformanceService {
 
     public List<UserInfo> uploadExecute() {
         // CSVを取得・CSVファイルをDBに登録する
-        uploadCsv();
-        
-        int count = userInfoDao.searchCount();
-        
-        UserInfo targetUser = getTargetUser();
-        
-        // DBから検索する
-        List<UserInfo> userInfoList = userInfoDao.search();
-        
-        List<UserInfo> matchUserInfoList = matchingUser(targetUser, userInfoList);
-        
-        return matchUserInfoList;
-    }
-
-    private List<UserInfo> matchingUser(UserInfo targetUser, List<UserInfo> userInfoList) {
-        
-        List<UserInfo> matchingUserList = userInfoList.stream()
-            .filter(user -> user.getBloodType().equals(targetUser.getBloodType()))
-            .filter(user -> user.getCity().equals(targetUser.getCity()))
-            .filter(user -> user.getHobby1().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
-            .filter(user -> user.getHobby2().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
-            .filter(user -> user.getHobby3().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
-            .filter(user -> user.getHobby4().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
-            .filter(user -> user.getHobby5().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5()))
-            .collect(Collectors.toList());
-        return matchingUserList;
-    }
-
-    private UserInfo getTargetUser() {
-        return userInfoDao.getTargetUser();
-    }
-
-    void uploadCsv() {
-        
-        List<String> csvFile = readCsv();
-
-        try {
-            int i = 0;
-            for(String line : csvFile) {
-                i++;
-                //カンマで分割した内容を配列に格納する
-                String[] data = line.split(",", -1);
-                
-                //データ内容をコンソールに表示する
-                log.info("-------------------------------");
-                //データ件数を表示
-                log.info("データ書き込み" + i + "件目");
-                //配列の中身を順位表示する。列数(=列名を格納した配列の要素数)分繰り返す
-                log.debug("ユーザー姓:" + data[1]);
-                log.debug("出身都道府県:" + data[2]);
-                log.debug("ユーザー名:" + data[0]);
-                log.debug("出身市区町村:" + data[3]);
-                log.debug("血液型:" + data[4]);
-                log.debug("趣味1:" + data[5]);
-                log.debug("趣味2:" + data[6]);
-                log.debug("趣味3:" + data[7]);
-                log.debug("趣味4:" + data[8]);
-                log.debug("趣味5:" + data[9]);
-                UserInfo userInfo = createUserInfo(data);
-                userInfoDao.insert(userInfo);
-                // 行数のインクリメント
-            }
-
-        } catch (Exception e) {
-            log.info("csv read error", e);
-        }
-    }
-
-    private List<String> readCsv() {
         //ファイル読み込みで使用する3つのクラス
         FileReader fr = null;
-        FileInputStream fi = null;
-        InputStreamReader is = null;
         BufferedReader br = null;
         List<String> csvFile = new ArrayList<String>();
         try {
@@ -138,9 +65,6 @@ public class PerformanceService {
             //ファイル名を指定する
             fr = new FileReader(new File("data/userInfo.csv"));
             br = new BufferedReader(fr);
-//            fi = new FileInputStream("data/userInfo.csv");
-//            is = new InputStreamReader(fi);
-//            br = new BufferedReader(is);
 
             //読み込み行
             String readLine;
@@ -167,26 +91,110 @@ public class PerformanceService {
             } catch (Exception e) {
             }
         }
+
+        try {
+            int i = 0;
+            for(String line : csvFile) {
+                // 行数のインクリメント
+                i++;
+                //カンマで分割した内容を配列に格納する
+                String[] data = line.split(",", -1);
+                
+                //データ内容をコンソールに表示する
+                log.info("-------------------------------");
+                //データ件数を表示
+                log.info("データ書き込み" + i + "件目");
+                //配列の中身を順位表示する。列数(=列名を格納した配列の要素数)分繰り返す
+                log.debug("ユーザー姓:" + data[1]);
+                log.debug("出身都道府県:" + data[2]);
+                log.debug("ユーザー名:" + data[0]);
+                log.debug("出身市区町村:" + data[3]);
+                log.debug("血液型:" + data[4]);
+                log.debug("趣味1:" + data[5]);
+                log.debug("趣味2:" + data[6]);
+                log.debug("趣味3:" + data[7]);
+                log.debug("趣味4:" + data[8]);
+                log.debug("趣味5:" + data[9]);
+                UserInfo userInfo = new UserInfo();
+
+                userInfo.setLastName(data[0]);
+                userInfo.setFirstName(data[1]);
+                userInfo.setPrefectures(data[2]);
+                userInfo.setCity(data[3]);
+                userInfo.setBloodType(data[4]);
+                userInfo.setHobby1(data[5]);
+                userInfo.setHobby2(data[6]);
+                userInfo.setHobby3(data[7]);
+                userInfo.setHobby4(data[8]);
+                userInfo.setHobby5(data[9]);
+                // 特定の件のみインサートするようにする
+//                if("".equals(userInfo.getPrefectures() + userInfo.getCity())) {
+                    userInfoDao.insert(userInfo);
+//                }
+            }
+
+        } catch (Exception e) {
+            log.info("csv read error", e);
+        }
         
-        return csvFile;
+        int count = userInfoDao.searchCount();
+        
+        UserInfo targetUser = userInfoDao.getTargetUser();
+        
+        // DBから検索する
+        List<UserInfo> userInfoList = userInfoDao.search();
+        
+        List<UserInfo> bloodMatchingUserList = new ArrayList<UserInfo>();
+        // 同じ血液型ユーザー
+        for(UserInfo user : userInfoList) {
+            if(user.getBloodType().equals(targetUser.getBloodType())) {
+                bloodMatchingUserList.add(user);
+            }
+        }
+        List<UserInfo> matchingUserList = new ArrayList<UserInfo>();
+        // 趣味1に同じ趣味を持っているユーザー
+        for(UserInfo user : bloodMatchingUserList) {
+            if(user.getHobby1().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5())) {
+                if(!matchingUserList.contains(user)) {
+                    matchingUserList.add(user);
+                }
+            }
+        }
+        // 趣味2に同じ趣味を持っているユーザー
+        for(UserInfo user : bloodMatchingUserList) {
+            if(user.getHobby2().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5())) {
+                if(!matchingUserList.contains(user)) {
+                    matchingUserList.add(user);
+                }
+            }
+        }
+        // 趣味3に同じ趣味を持っているユーザー
+        for(UserInfo user : bloodMatchingUserList) {
+            if(user.getHobby3().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5())) {
+                if(!matchingUserList.contains(user)) {
+                    matchingUserList.add(user);
+                }
+            }
+        }
+        // 趣味4に同じ趣味を持っているユーザー
+        for(UserInfo user : bloodMatchingUserList) {
+            if(user.getHobby4().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5())) {
+                if(!matchingUserList.contains(user)) {
+                    matchingUserList.add(user);
+                }
+            }
+        }
+        // 趣味5に同じ趣味を持っているユーザー
+        for(UserInfo user : bloodMatchingUserList) {
+            if(user.getHobby5().equals(targetUser.getHobby1()) || user.getHobby1().equals(targetUser.getHobby2()) || user.getHobby1().equals(targetUser.getHobby3()) || user.getHobby1().equals(targetUser.getHobby4()) || user.getHobby1().equals(targetUser.getHobby5())) {
+                if(!matchingUserList.contains(user)) {
+                    matchingUserList.add(user);
+                }
+            }
+        }
+        return matchingUserList;
     }
 
-    UserInfo createUserInfo(String[] data) {
-        UserInfo userInfo = new UserInfo();
-
-        userInfo.setLastName(data[0]);
-        userInfo.setFirstName(data[1]);
-        userInfo.setPrefectures(data[2]);
-        userInfo.setCity(data[3]);
-        userInfo.setBloodType(data[4]);
-        userInfo.setHobby1(data[5]);
-        userInfo.setHobby2(data[6]);
-        userInfo.setHobby3(data[7]);
-        userInfo.setHobby4(data[8]);
-        userInfo.setHobby5(data[9]);
-
-        return userInfo;
-    }
     
     public void truncateTable() {
         userInfoDao.truncate();
