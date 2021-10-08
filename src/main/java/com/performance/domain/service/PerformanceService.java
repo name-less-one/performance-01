@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
@@ -23,6 +25,8 @@ public class PerformanceService {
     private GoogleApiService googleService;
 
     private UserInfoDao userInfoDao;
+    
+    private Map<String, Long> resultMap = new HashMap<String, Long>();
 
     public PerformanceService(GoogleApiService googleService, UserInfoDao userInfoDao) {
         this.googleService = googleService;
@@ -30,7 +34,10 @@ public class PerformanceService {
     }
 
     @Async("perfomanceExecutor")
-    public void execute(String measureFlag) {
+    public void execute(String uuid, String measureFlag) {
+
+        resultMap.clear();
+        resultMap.put(uuid, null);
 
         truncateTable();
 
@@ -41,6 +48,7 @@ public class PerformanceService {
         Long end = System.currentTimeMillis();
         Long executeTime = end - start;
 
+        resultMap.put(uuid, executeTime);
         // アサーション入れる
         
         if(MEASURE_FLAG_ON.equals(measureFlag)) {
@@ -198,5 +206,26 @@ public class PerformanceService {
     
     public void truncateTable() {
         userInfoDao.truncate();
+    }
+
+    public Long referenceExecuteTime(String uuid) {
+        
+        Long result = null;
+        if(resultMap.containsKey(uuid)) {
+            result = resultMap.get(uuid);
+        }
+        
+        return result;
+    }
+    
+    public String referenceUuid() {
+        
+        String uuid = null;
+        
+        for(String key : resultMap.keySet()) {
+            uuid = key;
+        }
+        
+        return uuid;
     }
 }

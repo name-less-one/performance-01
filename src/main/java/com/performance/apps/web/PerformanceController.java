@@ -1,5 +1,7 @@
 package com.performance.apps.web;
 
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.task.TaskRejectedException;
@@ -33,19 +35,36 @@ public class PerformanceController {
     }
 
     @PostMapping(value = "/execute")
-    public String confirm(@RequestParam("measureFlag")String measureFlag, Model model) {
+    public String execute(@RequestParam("measureFlag")String measureFlag, Model model) {
 
+        String uuid = UUID.randomUUID().toString();
+        String message = null;
         try {
-            service.execute(measureFlag);
+            service.execute(uuid, measureFlag);
+            message = "非同期にて処理を実行しています。処理結果は結果参照ボタンから取得してください。";
         } catch (TaskRejectedException e) {
-            log.error("非同期処理実行中", e);
+            log.info("非同期処理実行中");
+            message = "非同期にて処理を実行中です。処理時間は結果参照ボタンから取得してください。";
+            uuid = service.referenceUuid();
         }
+
+        model.addAttribute("message", message);
+        model.addAttribute("uuid", uuid);
+
+        return "processing";
+    }
+
+    @PostMapping(value = "/reference")
+    public String reference(@RequestParam("uuid")String uuid, Model model) {
+
+        Long executeTime = service.referenceExecuteTime(uuid);
 
         String message = null;
-        if(MEASURE_FLAG_ON.equals(measureFlag)) {
-            message = "非同期にて処理を実行しています。処理時間はログかスプレッドシートを確認してください。";
+        if(executeTime == null) {
+            message = "まだ実行中みたいです。";
         }
-
+        
+        model.addAttribute("executeTime", executeTime);
         model.addAttribute("message", message);
 
         return "result";
