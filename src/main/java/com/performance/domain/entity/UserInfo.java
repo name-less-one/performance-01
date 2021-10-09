@@ -80,4 +80,9 @@ public class UserInfo {
     public void setHobby5(String hobby5) {
         this.hobby5 = hobby5;
     }
+    
+    public String toString() {
+        
+        return lastName + firstName + prefectures + city + bloodType + hobby1 + hobby2 + hobby3 + hobby4 + hobby5;
+    }
 }

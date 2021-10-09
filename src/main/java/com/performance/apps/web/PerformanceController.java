@@ -19,8 +19,6 @@ public class PerformanceController {
 
     final static Logger log = LogManager.getLogger(PerformanceController.class);
 
-    private final String MEASURE_FLAG_ON  = "1";
-
     PerformanceService service;
     GoogleApiService googleService;
 
@@ -58,13 +56,23 @@ public class PerformanceController {
     public String reference(@RequestParam("uuid")String uuid, Model model) {
 
         Long executeTime = service.referenceExecuteTime(uuid);
+        Boolean assertionResult = service.referenceAssertionResult(uuid);
 
         String message = null;
         if(executeTime == null) {
             message = "まだ実行中みたいです。";
         }
+        String resultMessage = null;
+        if(assertionResult != null) {
+            if(assertionResult) {
+                resultMessage = "OK";
+            } else {
+                resultMessage = "NG";
+            }
+        }
         
         model.addAttribute("executeTime", executeTime);
+        model.addAttribute("resultMessage", resultMessage);
         model.addAttribute("message", message);
 
         return "result";

@@ -3,6 +3,7 @@ package com.performance.domain.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ public class PerformanceService {
     private UserInfoDao userInfoDao;
     
     private Map<String, Long> resultMap = new HashMap<String, Long>();
+    private Map<String, Boolean> assertionResultMap = new HashMap<String, Boolean>();
 
     public PerformanceService(GoogleApiService googleService, UserInfoDao userInfoDao) {
         this.googleService = googleService;
@@ -50,6 +52,8 @@ public class PerformanceService {
 
         resultMap.put(uuid, executeTime);
         // アサーション入れる
+        Boolean assertionResult = assertion(matchingUserList);
+        assertionResultMap.put(uuid, assertionResult);
         
         if(MEASURE_FLAG_ON.equals(measureFlag)) {
             try {
@@ -60,7 +64,6 @@ public class PerformanceService {
         }
         return;
     }
-
     public List<UserInfo> uploadExecute() {
         // CSVを取得・CSVファイルをDBに登録する
         //ファイル読み込みで使用する3つのクラス
@@ -71,7 +74,7 @@ public class PerformanceService {
 
             //読み込みファイルのインスタンス生成
             //ファイル名を指定する
-            fr = new FileReader(new File("data/userInfo.csv"));
+            fr = new FileReader(new File("data/userInfo.csv"), Charset.forName("SJIS"));
             br = new BufferedReader(fr);
 
             //読み込み行
@@ -103,15 +106,12 @@ public class PerformanceService {
         try {
             int i = 0;
             for(String line : csvFile) {
-                // 行数のインクリメント
-                i++;
                 //カンマで分割した内容を配列に格納する
                 String[] data = line.split(",", -1);
                 
                 //データ内容をコンソールに表示する
                 log.info("-------------------------------");
                 //データ件数を表示
-                log.info("データ書き込み" + i + "件目");
                 //配列の中身を順位表示する。列数(=列名を格納した配列の要素数)分繰り返す
                 log.debug("ユーザー姓:" + data[1]);
                 log.debug("出身都道府県:" + data[2]);
@@ -136,16 +136,17 @@ public class PerformanceService {
                 userInfo.setHobby4(data[8]);
                 userInfo.setHobby5(data[9]);
                 // 特定の件のみインサートするようにする
-//                if("".equals(userInfo.getPrefectures() + userInfo.getCity())) {
+                if("新潟県上越市".equals(userInfo.getPrefectures() + userInfo.getCity())) {
+                    // 行数のインクリメント
+                    i++;
+                    log.info("データ書き込み" + i + "件目");
                     userInfoDao.insert(userInfo);
-//                }
+                }
             }
 
         } catch (Exception e) {
             log.info("csv read error", e);
         }
-        
-        int count = userInfoDao.searchCount();
         
         UserInfo targetUser = userInfoDao.getTargetUser();
         
@@ -227,5 +228,73 @@ public class PerformanceService {
         }
         
         return uuid;
+    }
+
+    private Boolean assertion(List<UserInfo> matchingUserList) {
+        Boolean assertionResult = true;
+        
+        int count = userInfoDao.searchCount();
+        
+        if(count != 10000) {
+            return false;
+        }
+        
+        // CSVを取得・CSVファイルをDBに登録する
+        //ファイル読み込みで使用する3つのクラス
+        FileReader fr = null;
+        BufferedReader br = null;
+        List<String> csvFile = new ArrayList<String>();
+        try {
+
+            //読み込みファイルのインスタンス生成
+            //ファイル名を指定する
+            fr = new FileReader(new File("data/assertionData.csv"));
+            br = new BufferedReader(fr);
+
+            //読み込み行
+            String readLine;
+            //1行ずつ読み込みを行う
+            while ((readLine = br.readLine()) != null) {
+                csvFile.add(readLine);
+            }
+        } catch (Exception e) {
+            log.info("csv read error", e);
+        } finally {
+            try {
+                br.close();
+            } catch (Exception e) {
+            }
+        }
+        for(String line : csvFile) {
+            boolean exsits = false;
+            UserInfo userInfo = new UserInfo();
+            String[] data = line.split(",", -1);
+
+            userInfo.setLastName(data[0]);
+            userInfo.setFirstName(data[1]);
+            userInfo.setPrefectures(data[2]);
+            userInfo.setCity(data[3]);
+            userInfo.setBloodType(data[4]);
+            userInfo.setHobby1(data[5]);
+            userInfo.setHobby2(data[6]);
+            userInfo.setHobby3(data[7]);
+            userInfo.setHobby4(data[8]);
+            userInfo.setHobby5(data[9]);
+            for(UserInfo user : matchingUserList) {
+                if(user.toString().equals(userInfo.toString())) {
+                    exsits = true;
+                    break;
+                }
+            }
+            if(!exsits) {
+                assertionResult = false;
+            }
+        }
+        return assertionResult;
+    }
+
+    public Boolean referenceAssertionResult(String uuid) {
+        Boolean assertionResult = assertionResultMap.get(uuid);
+        return assertionResult;
     }
 }
