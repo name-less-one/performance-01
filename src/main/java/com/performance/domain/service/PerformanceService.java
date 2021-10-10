@@ -239,6 +239,10 @@ public class PerformanceService {
             return false;
         }
         
+        if(matchingUserList.size() != 874) {
+            return false;
+        }
+        
         // CSVを取得・CSVファイルをDBに登録する
         //ファイル読み込みで使用する3つのクラス
         FileReader fr = null;

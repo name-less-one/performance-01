@@ -39,6 +39,7 @@ public class UserInfoDao {
     public List<UserInfo> search() {
         String sql = "SELECT id, last_name, first_name, prefectures, city, blood_type, hobby1, hobby2, hobby3, hobby4, hobby5 ";
         sql = sql + "FROM user_info ";
+        sql = sql + "WHERE last_name || first_name <> " + "'試験太郎'";
         RowMapper<UserInfo> mapper = new BeanPropertyRowMapper<UserInfo>(UserInfo.class);
         return jdbcTemplate.query(sql, mapper);
     }
