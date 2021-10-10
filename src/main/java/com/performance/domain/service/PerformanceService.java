@@ -74,7 +74,7 @@ public class PerformanceService {
 
             //読み込みファイルのインスタンス生成
             //ファイル名を指定する
-            fr = new FileReader(new File("data/userInfo.csv"), Charset.forName("SJIS"));
+            fr = new FileReader(new File("data/userInfo.csv"));
             br = new BufferedReader(fr);
 
             //読み込み行
