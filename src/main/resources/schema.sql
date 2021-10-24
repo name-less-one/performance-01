@@ -5,6 +5,10 @@ create table if not exists user_info (
     ,prefectures varchar(8) not null
     ,city varchar(64) not null
     ,blood_type varchar(2) not null
+);
+
+create table if not exists user_hobby (
+     id integer
     ,hobby1 varchar(256)
     ,hobby2 varchar(256)
     ,hobby3 varchar(256)
